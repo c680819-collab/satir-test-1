@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>薩提爾溝通姿態量表</title>
+  <style>
+    body {
+      font-family: "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+      background: #f7efe7;
+      color: #4b3328;
+      margin: 0;
+      padding: 20px;
+      line-height: 1.7;
+    }
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background: #fffdf9;
+      padding: 28px;
+      border-radius: 18px;
+      box-shadow: 0 6px 20px rgba(0,0,0,.08);
+    }
+    h1 {
+      color: #8a4d36;
+      margin-bottom: 8px;
+    }
+    .intro {
+      background: #fff2e4;
+      padding: 16px 20px;
+      border-radius: 12px;
+      margin-bottom: 24px;
+    }
+    .question {
+      border-bottom: 1px solid #ead7c9;
+      padding: 18px 0;
+    }
+    .question-title {
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .options {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+    }
+    label {
+      background: #f4e4d7;
+      padding: 8px;
+      border-radius: 10px;
+      text-align: center;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    input[type="radio"] {
+      margin-right: 4px;
+    }
+    button {
+      display: block;
+      width: 100%;
+      margin-top: 28px;
+      padding: 14px;
+      background: #8a4d36;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 18px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #6f3c2a;
+    }
+    #result {
+      display: none;
+      margin-top: 32px;
+      padding: 22px;
+      background: #fdf5ed;
+      border-radius: 16px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 16px;
+    }
+    th, td {
+      border-bottom: 1px solid #dec7b8;
+      padding: 10px;
+      text-align: left;
+    }
+    th {
+      background: #efd9c8;
+    }
+    .note {
+      margin-top: 18px;
+      font-size: 15px;
+      color: #6f5144;
+    }
+    @media (max-width: 700px) {
+      .options {
+        grid-template-columns: 1fr;
+      }
+      .container {
+        padding: 18px;
+      }
+    }
+    @media print {
+      body {
+        background: white;
+      }
+      button, form {
+        display: none;
+      }
+      #result {
+        display: block !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>薩提爾溝通姿態量表</h1>
+    <div class="intro">
+      <p><strong>作答說明：</strong></p>
+      <p>這份量表是協助你了解自己在人際互動中的習慣反應方式。每個人在不同情境下，都可能使用不同的溝通方式，因此本量表沒有標準答案，也沒有好壞之分。</p>
+      <p>請依照你最近三個月的真實狀況，憑第一直覺作答。</p>
+      <p>選項說明：1 幾乎不會、2 偶爾如此、3 有時如此、4 經常如此、5 非常符合。</p>
+    </div>
+
+    <form id="quizForm"></form>
+
+    <button onclick="calculateResult()">送出並查看結果</button>
+
+    <section id="result">
+      <h2>你的九類溝通姿態分數</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>類別</th>
+            <th>分數</th>
+          </tr>
+        </thead>
+        <tbody id="resultBody"></tbody>
+      </table>
+      <p class="note">提醒：分數高不代表好或不好，只代表這是你目前較常使用的互動方式。請避免用單一類別定義自己，而是把結果當作自我覺察與團體討論的素材。</p>
+      <button onclick="window.print()">列印／另存結果</button>
+    </section>
+  </div>
+
+  <script>
+    const categories = {
+      A: "弱勢的討好",
+      B: "顧及關係的討好",
+      C: "威權護顏的指責",
+      D: "唯理至上超理智",
+      E: "證明自己的超理智",
+      F: "逃避的打岔",
+      G: "事緩則圓的打岔",
+      H: "人我兼顧的一致",
+      I: "反求諸己的一致"
+    };
+
+    const questions = [
+      ["A", "在與他人的互動關係中，我常是委屈求全的一方。"],
+      ["B", "為了避免與他人產生衝突，即使我是對的，我也會讓步。"],
+      ["C", "遇到讓我不滿意的事，我通常先責怪他人。"],
+      ["D", "面對任何人，態度冷靜和理性回應是我一貫的作風。"],
+      ["E", "我常分析自己的意見給他人聽，以顯示我是有兩把刷子的人。"],
+      ["F", "當我的看法與他人不同時，我會故意忽略，假裝沒這回事。"],
+      ["G", "當他人要求我無法接受時，我會顧左右而言他，以免產生衝突。"],
+      ["H", "在互動中發生問題時，我可以適時地向他人表達我內在的真實感受。"],
+      ["I", "我會透過尊重的態度，與他人討論雙方不同的期待。"],
+      ["A", "我會想讓他人開心而隱藏自己的喜好或意見。"],
+      ["B", "為了關係或長遠的未來，我願意暫時忍讓。"],
+      ["C", "當我不高興時，我會以強勢的態度要求他人配合我的想法或需求。"],
+      ["D", "我比較在意事情是否能解決，較少考慮人的感受。"],
+      ["E", "我說話會講究邏輯思考、理性思維，來顯示我是聰明、有智慧的人。"],
+      ["F", "為了減少尷尬，我會說一些言不及義的話。"],
+      ["G", "當我與他人意見不合時，我會雞同鴨講，不表明真正看法，來緩和氣氛。"],
+      ["H", "我接納我自己真實的面貌，期許自己是內外一致的人。"],
+      ["I", "意見不同時，我會溝通，試著找到彼此都贊同的方式。"],
+      ["A", "我不敢表達負面的情緒或感受，因為我擔心他人會不喜歡我。"],
+      ["B", "他人認為我不對時，不管是否有理，我都會很快表達歉意，減少他人的不滿。"],
+      ["C", "我會因為面子掛不住而指責他人的不是。"],
+      ["D", "我面對衝突和壓力時，會像機器人般聚焦在問題上，以求有效率地解決。"],
+      ["E", "我說話常會引經據典，好讓人佩服我。"],
+      ["F", "當我不想理他人的時候，我會把自己放空。"],
+      ["G", "在關係出現緊張情境時，我會裝作沒事，故作輕鬆狀。"],
+      ["H", "與他人互動時，我可以考量他人和情境，適時地表達自己的感受與需要。"],
+      ["I", "即使我對他人有所不滿，我仍願意理解對方，與其協調，並調整自己。"]
+    ];
+
+    const optionLabels = [
+      "1 幾乎不會",
+      "2 偶爾如此",
+      "3 有時如此",
+      "4 經常如此",
+      "5 非常符合"
+    ];
+
+    const form = document.getElementById("quizForm");
+
+    questions.forEach((q, index) => {
+      const block = document.createElement("div");
+      block.className = "question";
+      block.innerHTML = `
+        <div class="question-title">${index + 1}. ${q[1]}</div>
+        <div class="options">
+          ${optionLabels.map((label, scoreIndex) => `
+            <label>
+              <input type="radio" name="q${index}" value="${scoreIndex + 1}" required>
+              ${label}
+            </label>
+          `).join("")}
+        </div>
+      `;
+      form.appendChild(block);
+    });
+
+    function calculateResult() {
+      const formData = new FormData(form);
+      if ([...formData.keys()].length < questions.length) {
+        alert("請確認27題都已完成作答。");
+        return;
+      }
+
+      const scores = { A: 0, B: 0, C: 0, D: 0, E: 0, F: 0, G: 0, H: 0, I: 0 };
+
+      questions.forEach((q, index) => {
+        const category = q[0];
+        const score = Number(formData.get(`q${index}`));
+        scores[category] += score;
+      });
+
+      const resultBody = document.getElementById("resultBody");
+      resultBody.innerHTML = "";
+
+      Object.keys(categories).forEach(key => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${key}${categories[key]}</td>
+          <td>${scores[key]} 分</td>
+        `;
+        resultBody.appendChild(row);
+      });
+
+      document.getElementById("result").style.display = "block";
+      document.getElementById("result").scrollIntoView({ behavior: "smooth" });
+    }
+  </script>
+</body>
+</html>
